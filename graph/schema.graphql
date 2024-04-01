@@ -1,0 +1,21 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Mutation {
+  CreateBook(input: CreateBookInput): Output
+  UpdateBook(input: UpdateBookInput): Output
+  DeleteBook(input: ID!):Output
+}
+
+type Query {
+  GetBook(id: ID!): Book
+  GetBooks(in: PaginationInput):[Book]
+}
+
+type Output {
+  success: Boolean!
+  message: String
+}
+
