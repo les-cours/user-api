@@ -1,0 +1,9 @@
+type Student {
+    id: String!
+    name: String!
+}
+
+input StudentInput {
+    id: String!
+    name: String!
+}

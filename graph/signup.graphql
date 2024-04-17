@@ -1,0 +1,29 @@
+input SignupRequest {
+    firstname: String!
+    lastname: String!
+    email: String!
+    password: String!
+}
+
+type SignupResponse {
+    succeeded: Boolean!
+    accessToken: AccessToken!
+    refreshToken: RefreshToken!
+    signupToken: SignupToken!
+}
+
+type AccessToken {
+    token: String!
+    tokenType: String!
+    expiresAt: Int!
+}
+
+type RefreshToken {
+    token: String!
+    expiresAt: Int!
+}
+
+type SignupToken {
+    token: String!
+    expiresAt: Int!
+}

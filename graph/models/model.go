@@ -2,49 +2,48 @@
 
 package models
 
-type Book struct {
-	ID          string  `json:"id"`
-	Title       string  `json:"title"`
-	Author      string  `json:"author"`
-	Description *string `json:"description,omitempty"`
-	Pages       *int    `json:"pages,omitempty"`
-	IsPublished *bool   `json:"isPublished,omitempty"`
-}
-
-type CreateBookInput struct {
-	Title       string  `json:"title"`
-	Author      string  `json:"author"`
-	Description *string `json:"description,omitempty"`
-	Pages       *int    `json:"pages,omitempty"`
-	IsPublished *bool   `json:"isPublished,omitempty"`
+type AccessToken struct {
+	Token     string `json:"token"`
+	TokenType string `json:"tokenType"`
+	ExpiresAt int    `json:"expiresAt"`
 }
 
 type Mutation struct {
 }
 
-type Output struct {
-	Success bool    `json:"success"`
-	Message *string `json:"message,omitempty"`
-}
-
-type Pagination struct {
-	CurrentPage int `json:"current_page"`
-	PerPage     int `json:"per_page"`
-}
-
-type PaginationInput struct {
-	Ids        []string    `json:"ids"`
-	Pagination *Pagination `json:"pagination"`
-}
-
 type Query struct {
 }
 
-type UpdateBookInput struct {
-	ID          string  `json:"id"`
-	Title       *string `json:"title,omitempty"`
-	Author      *string `json:"author,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Pages       *int    `json:"pages,omitempty"`
-	IsPublished *bool   `json:"isPublished,omitempty"`
+type RefreshToken struct {
+	Token     string `json:"token"`
+	ExpiresAt int    `json:"expiresAt"`
+}
+
+type SignupRequest struct {
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+}
+
+type SignupResponse struct {
+	Succeeded    bool          `json:"succeeded"`
+	AccessToken  *AccessToken  `json:"accessToken"`
+	RefreshToken *RefreshToken `json:"refreshToken"`
+	SignupToken  *SignupToken  `json:"signupToken"`
+}
+
+type SignupToken struct {
+	Token     string `json:"token"`
+	ExpiresAt int    `json:"expiresAt"`
+}
+
+type Student struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type StudentInput struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }

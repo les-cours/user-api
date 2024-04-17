@@ -4,18 +4,12 @@ schema {
 }
 
 type Mutation {
-  CreateBook(input: CreateBookInput): Output
-  UpdateBook(input: UpdateBookInput): Output
-  DeleteBook(input: ID!):Output
+    signup(in: SignupRequest!): SignupResponse
 }
 
 type Query {
-  GetBook(id: ID!): Book
-  GetBooks(in: PaginationInput):[Book]
+  getStudents:[Student]
 }
 
-type Output {
-  success: Boolean!
-  message: String
-}
+
 

@@ -1,12 +1,12 @@
 package resolvers
 
 import (
+	"github.com/les-cours/user-api/api/users"
 	"github.com/les-cours/user-api/graph"
-	bookApi "github.com/les-cours/user-api/protobuf/book"
 )
 
 type Resolver struct {
-	BookClient bookApi.BookServiceClient
+	UserClient users.UserServiceClient
 }
 
 // Mutation returns graph.MutationResolver implementation.

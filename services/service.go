@@ -1,45 +1,110 @@
-package services
+package service
 
 import (
+	"context"
+	"encoding/json"
 	"log"
 	"net/http"
+	"runtime"
+	"strconv"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	userApi "github.com/les-cours/user-api/api/users"
+	"github.com/les-cours/user-api/env"
 	"github.com/les-cours/user-api/graph"
 	"github.com/les-cours/user-api/graph/resolvers"
-	bookApi "github.com/les-cours/user-api/protobuf/book"
+	"github.com/les-cours/user-api/types"
 	"google.golang.org/grpc"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-const HttpPort = "1112"
+var (
+	registry       = prometheus.NewRegistry()
+	requestCounter = prometheus.NewGauge(prometheus.GaugeOpts{Name: "request_counter", Help: "request counter"})
+	memoryUsage    = prometheus.NewGauge(prometheus.GaugeOpts{Name: "memory_usage", Help: "memory usage"})
+	goRoutineNum   = prometheus.NewGauge(prometheus.GaugeOpts{Name: "go_routines_num", Help: "the number of go routine "})
+)
+
+func monitoring_middleware(originalHandler http.Handler) http.HandlerFunc {
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		memoryUsage.Set(float64(m.Alloc))
+		goRoutineNum.Set(float64(runtime.NumGoroutine()))
+		originalHandler.ServeHTTP(w, r)
+	})
+}
+func getUser(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := types.UserToken{}
+		accountID := r.Header.Get("Accountid")
+		id := r.Header.Get("Id")
+		email := r.Header.Get("Email")
+		username := r.Header.Get("Username")
+
+		coBrowsing, _ := strconv.ParseBool(r.Header.Get("Cobrowsing"))
+		screenShare, _ := strconv.ParseBool(r.Header.Get("Screenshare"))
+		audioDownload, _ := strconv.ParseBool(r.Header.Get("Audiodownload"))
+		videoDownload, _ := strconv.ParseBool(r.Header.Get("Videodownload"))
+		json.Unmarshal([]byte(r.Header.Get("Create")), &user.Create)
+		json.Unmarshal([]byte(r.Header.Get("Read")), &user.Read)
+		json.Unmarshal([]byte(r.Header.Get("Update")), &user.Update)
+		json.Unmarshal([]byte(r.Header.Get("Delete")), &user.Delete)
+		user.AccountID = accountID
+		user.ID = id
+		user.Email = email
+		user.Username = username
+		user.CoBrowsing = coBrowsing
+		user.ScreenShare = screenShare
+		user.AudioDownload = audioDownload
+		user.VideoDownload = videoDownload
+		ctx := context.WithValue(r.Context(), "responseWriter", w)
+		ctx = context.WithValue(ctx, "user", &user)
+		h.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func cors(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "*")
+		requestCounter.Inc()
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		h.ServeHTTP(w, r)
+	})
+}
 
 func Start() {
-	var err error
-
-	conn, err := grpc.Dial("user-service:1113", grpc.WithInsecure())
+	registry.MustRegister(requestCounter, memoryUsage, goRoutineNum)
+	conn, err := grpc.Dial(env.Conf.UserService.Host+":"+env.Conf.UserService.Port, grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("Failed to connect to book domain service: %v", err)
+		log.Fatalf("Failed to connect to agent domain service: %v", err)
 	}
 	defer conn.Close()
-	bookClient := bookApi.NewBookServiceClient(conn)
+	userClient := userApi.NewUserServiceClient(conn)
 
-	var r = resolvers.Resolver{
-		BookClient: bookClient,
-	}
-	var srv = handler.NewDefaultServer(
-		graph.NewExecutableSchema(
-			graph.Config{Resolvers: &r},
-		),
-	)
+	r := resolvers.Resolver{UserClient: userClient}
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &r}))
 
-	http.Handle("/api", srv)
+	http.Handle("/api", cors(getUser(srv)))
+	promHandler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
+	http.Handle("/metrics", cors(monitoring_middleware(promHandler)))
 	http.Handle("/", playground.Handler("GraphQL playground", "/api"))
 
-	log.Printf("Starting http server on port " + HttpPort)
+	log.Printf("Starting http server on port " + env.Conf.HttpPort)
 
-	err = http.ListenAndServe(":"+HttpPort, nil)
+	err = http.ListenAndServe(":"+env.Conf.HttpPort, nil)
 	if err != nil {
-		log.Fatalf("Error http server on port %v: %v", HttpPort, err)
+		log.Fatalf("Error http server on port %v: %v", env.Conf.HttpPort, err)
 	}
 }
