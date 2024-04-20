@@ -54,7 +54,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		Signup func(childComplexity int, in models.SignupRequest) int
+		Signup func(childComplexity int, in models.StudentSignupRequest) int
 	}
 
 	Query struct {
@@ -85,7 +85,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	Signup(ctx context.Context, in models.SignupRequest) (*models.SignupResponse, error)
+	Signup(ctx context.Context, in models.StudentSignupRequest) (*models.SignupResponse, error)
 }
 type QueryResolver interface {
 	GetStudents(ctx context.Context) ([]*models.Student, error)
@@ -141,7 +141,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Signup(childComplexity, args["in"].(models.SignupRequest)), true
+		return e.complexity.Mutation.Signup(childComplexity, args["in"].(models.StudentSignupRequest)), true
 
 	case "Query.getStudents":
 		if e.complexity.Query.GetStudents == nil {
@@ -228,8 +228,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputSignupRequest,
 		ec.unmarshalInputStudentInput,
+		ec.unmarshalInputStudentSignupRequest,
 	)
 	first := true
 
@@ -351,10 +351,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_signup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 models.SignupRequest
+	var arg0 models.StudentSignupRequest
 	if tmp, ok := rawArgs["in"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
-		arg0, err = ec.unmarshalNSignupRequest2githubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐSignupRequest(ctx, tmp)
+		arg0, err = ec.unmarshalNStudentSignupRequest2githubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐStudentSignupRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -562,7 +562,7 @@ func (ec *executionContext) _Mutation_signup(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Signup(rctx, fc.Args["in"].(models.SignupRequest))
+		return ec.resolvers.Mutation().Signup(rctx, fc.Args["in"].(models.StudentSignupRequest))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3019,14 +3019,48 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputSignupRequest(ctx context.Context, obj interface{}) (models.SignupRequest, error) {
-	var it models.SignupRequest
+func (ec *executionContext) unmarshalInputStudentInput(ctx context.Context, obj interface{}) (models.StudentInput, error) {
+	var it models.StudentInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"firstname", "lastname", "email", "password"}
+	fieldsInOrder := [...]string{"id", "name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputStudentSignupRequest(ctx context.Context, obj interface{}) (models.StudentSignupRequest, error) {
+	var it models.StudentSignupRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"firstname", "lastname", "email", "password", "dob", "gender", "gradID", "cityID"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3061,40 +3095,34 @@ func (ec *executionContext) unmarshalInputSignupRequest(ctx context.Context, obj
 				return it, err
 			}
 			it.Password = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputStudentInput(ctx context.Context, obj interface{}) (models.StudentInput, error) {
-	var it models.StudentInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"id", "name"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "id":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		case "dob":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dob"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.ID = data
-		case "name":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Dob = data
+		case "gender":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("gender"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Name = data
+			it.Gender = data
+		case "gradID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("gradID"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GradID = data
+		case "cityID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cityID"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CityID = data
 		}
 	}
 
@@ -3835,11 +3863,6 @@ func (ec *executionContext) marshalNRefreshToken2ᚖgithubᚗcomᚋlesᚑcours�
 	return ec._RefreshToken(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSignupRequest2githubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐSignupRequest(ctx context.Context, v interface{}) (models.SignupRequest, error) {
-	res, err := ec.unmarshalInputSignupRequest(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) marshalNSignupToken2ᚖgithubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐSignupToken(ctx context.Context, sel ast.SelectionSet, v *models.SignupToken) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -3863,6 +3886,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNStudentSignupRequest2githubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐStudentSignupRequest(ctx context.Context, v interface{}) (models.StudentSignupRequest, error) {
+	res, err := ec.unmarshalInputStudentSignupRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

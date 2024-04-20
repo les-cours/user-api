@@ -4,7 +4,7 @@ schema {
 }
 
 type Mutation {
-    signup(in: SignupRequest!): SignupResponse
+    signup(in: StudentSignupRequest!): SignupResponse
 }
 
 type Query {

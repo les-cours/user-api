@@ -1,8 +1,12 @@
-input SignupRequest {
+input StudentSignupRequest {
     firstname: String!
     lastname: String!
     email: String!
     password: String!
+    dob: String!
+    gender: String!
+    gradID: String!
+    cityID: Int!
 }
 
 type SignupResponse {

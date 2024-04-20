@@ -19,13 +19,6 @@ type RefreshToken struct {
 	ExpiresAt int    `json:"expiresAt"`
 }
 
-type SignupRequest struct {
-	Firstname string `json:"firstname"`
-	Lastname  string `json:"lastname"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-}
-
 type SignupResponse struct {
 	Succeeded    bool          `json:"succeeded"`
 	AccessToken  *AccessToken  `json:"accessToken"`
@@ -46,4 +39,15 @@ type Student struct {
 type StudentInput struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+}
+
+type StudentSignupRequest struct {
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	Dob       string `json:"dob"`
+	Gender    string `json:"gender"`
+	GradID    string `json:"gradID"`
+	CityID    int    `json:"cityID"`
 }

@@ -88,6 +88,10 @@ message StudentSignupRequest {
   string lastname = 2;
   string email = 3;
   string password = 4;
+  string dob = 5;
+  string gender = 6;
+  string gradID = 7;
+  int32 cityID = 8;
 
 }
 message StudentSignupResponse {
