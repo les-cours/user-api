@@ -57,3 +57,17 @@ func (r *mutationResolver) Signup(ctx context.Context, in models.StudentSignupRe
 		},
 	}, nil
 }
+
+func (r *mutationResolver) EmailConfirmation(ctx context.Context, in models.EmailConfirmationRequest) (*models.OperationStatus, error) {
+
+	res, err := r.UserClient.EmailConfirmation(ctx, &users.EmailConfirmationRequest{
+		AccountID: in.AccountID,
+		Code:      int64(in.Code),
+	})
+	if err != nil {
+		return nil, utils.ErrApi(err)
+	}
+	return &models.OperationStatus{
+		Succeeded: res.Completed,
+	}, nil
+}

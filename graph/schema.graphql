@@ -5,11 +5,16 @@ schema {
 
 type Mutation {
     signup(in: StudentSignupRequest!): SignupResponse
+    emailConfirmation(in: EmailConfirmationRequest!): OperationStatus!
 }
 
 type Query {
   getStudents:[Student]
 }
 
+
+type OperationStatus {
+    succeeded: Boolean!
+}
 
 

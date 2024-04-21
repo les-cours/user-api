@@ -31,3 +31,8 @@ type SignupToken {
     token: String!
     expiresAt: Int!
 }
+
+input EmailConfirmationRequest {
+    accountID: String!
+    code: Int!
+}

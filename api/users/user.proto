@@ -258,6 +258,11 @@ message Permissions {
   string accountID = 5;
 }
 
+message EmailConfirmationRequest {
+  string accountID = 1;
+  int64 code  = 2;
+}
+
 service UserService {
   rpc GetStudents(GetStudentRequest) returns (Students) {}
   rpc GetStudent(GetStudentRequest) returns (Student) {}
@@ -268,6 +273,7 @@ service UserService {
   rpc DeleteStudents(MultiStudentsDeleteRequest) returns (OperationStatus) {}
   rpc UpdateStudentOnlineStatus(UpdateStudentOnlineStatusRequest)returns (OperationStatus){}
   rpc StudentSignup(StudentSignupRequest) returns (StudentSignupResponse) {}
+  rpc EmailConfirmation(EmailConfirmationRequest)returns (OperationStatus) {}
 
   /*
        TEACHER

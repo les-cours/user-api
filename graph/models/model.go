@@ -8,7 +8,16 @@ type AccessToken struct {
 	ExpiresAt int    `json:"expiresAt"`
 }
 
+type EmailConfirmationRequest struct {
+	AccountID string `json:"accountID"`
+	Code      int    `json:"code"`
+}
+
 type Mutation struct {
+}
+
+type OperationStatus struct {
+	Succeeded bool `json:"succeeded"`
 }
 
 type Query struct {
