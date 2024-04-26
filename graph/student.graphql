@@ -1,9 +1,28 @@
 type Student {
-    id: String!
-    name: String!
+    studentId: String!
+    username: String!
+    firstname: String!
+    lastname: String!
+    gender: String!
+    dateOfBirth: String!
+    status: Boolean!
+    avatar: String
+    notificationStatus: Boolean!
+    onlineStatus: Boolean!
+    defaultAvatar: String!
+    cityId: String!
 }
 
 input StudentInput {
     id: String!
     name: String!
+}
+
+input GetStudentsRequest {
+    filterType: String!
+    filterValue: String!
+}
+
+input GetStudentRequest {
+    studentID: String!
 }

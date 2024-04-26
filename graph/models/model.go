@@ -13,6 +13,15 @@ type EmailConfirmationRequest struct {
 	Code      int    `json:"code"`
 }
 
+type GetStudentRequest struct {
+	StudentID string `json:"studentID"`
+}
+
+type GetStudentsRequest struct {
+	FilterType  string `json:"filterType"`
+	FilterValue string `json:"filterValue"`
+}
+
 type Mutation struct {
 }
 
@@ -41,8 +50,18 @@ type SignupToken struct {
 }
 
 type Student struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	StudentID          string  `json:"studentId"`
+	Username           string  `json:"username"`
+	Firstname          string  `json:"firstname"`
+	Lastname           string  `json:"lastname"`
+	Gender             string  `json:"gender"`
+	DateOfBirth        string  `json:"dateOfBirth"`
+	Status             bool    `json:"status"`
+	Avatar             *string `json:"avatar,omitempty"`
+	NotificationStatus bool    `json:"notificationStatus"`
+	OnlineStatus       bool    `json:"onlineStatus"`
+	DefaultAvatar      string  `json:"defaultAvatar"`
+	CityID             string  `json:"cityId"`
 }
 
 type StudentInput struct {

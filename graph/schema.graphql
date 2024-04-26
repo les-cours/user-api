@@ -9,7 +9,8 @@ type Mutation {
 }
 
 type Query {
-  getStudents:[Student]
+    students(in: GetStudentsRequest!):[Student!]!
+    student(studentID : String!):Student
 }
 
 

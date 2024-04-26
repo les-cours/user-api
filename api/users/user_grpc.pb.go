@@ -22,9 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
-	GetStudents(ctx context.Context, in *GetStudentRequest, opts ...grpc.CallOption) (*Students, error)
+	GetStudents(ctx context.Context, in *GetStudentsRequest, opts ...grpc.CallOption) (*Students, error)
 	GetStudent(ctx context.Context, in *GetStudentRequest, opts ...grpc.CallOption) (*Student, error)
-	AddStudent(ctx context.Context, in *StudentAddRequest, opts ...grpc.CallOption) (*Student, error)
 	UpdateStudentStatus(ctx context.Context, in *UpdateStudentStatusRequest, opts ...grpc.CallOption) (*UpdateStudentStatusResponse, error)
 	UpdateStudent(ctx context.Context, in *StudentUpdateRequest, opts ...grpc.CallOption) (*Student, error)
 	DeleteStudent(ctx context.Context, in *DeleteStudentRequest, opts ...grpc.CallOption) (*OperationStatus, error)
@@ -34,6 +33,7 @@ type UserServiceClient interface {
 	EmailConfirmation(ctx context.Context, in *EmailConfirmationRequest, opts ...grpc.CallOption) (*OperationStatus, error)
 	InviteTeacher(ctx context.Context, in *InviteTeacherRequest, opts ...grpc.CallOption) (*OperationStatus, error)
 	TeacherSignup(ctx context.Context, in *TeacherSignupRequest, opts ...grpc.CallOption) (*TeacherSignupResponse, error)
+	GetTeacherBySubject(ctx context.Context, in *GetTeacherBySubjectRequest, opts ...grpc.CallOption) (*Teachers, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*User, error)
 	GetUserByID(ctx context.Context, in *GetUserByIDRequest, opts ...grpc.CallOption) (*User, error)
 	ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...grpc.CallOption) (*ResetPasswordResponse, error)
@@ -53,7 +53,7 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
 }
 
-func (c *userServiceClient) GetStudents(ctx context.Context, in *GetStudentRequest, opts ...grpc.CallOption) (*Students, error) {
+func (c *userServiceClient) GetStudents(ctx context.Context, in *GetStudentsRequest, opts ...grpc.CallOption) (*Students, error) {
 	out := new(Students)
 	err := c.cc.Invoke(ctx, "/users.UserService/GetStudents", in, out, opts...)
 	if err != nil {
@@ -65,15 +65,6 @@ func (c *userServiceClient) GetStudents(ctx context.Context, in *GetStudentReque
 func (c *userServiceClient) GetStudent(ctx context.Context, in *GetStudentRequest, opts ...grpc.CallOption) (*Student, error) {
 	out := new(Student)
 	err := c.cc.Invoke(ctx, "/users.UserService/GetStudent", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) AddStudent(ctx context.Context, in *StudentAddRequest, opts ...grpc.CallOption) (*Student, error) {
-	out := new(Student)
-	err := c.cc.Invoke(ctx, "/users.UserService/AddStudent", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -155,6 +146,15 @@ func (c *userServiceClient) InviteTeacher(ctx context.Context, in *InviteTeacher
 func (c *userServiceClient) TeacherSignup(ctx context.Context, in *TeacherSignupRequest, opts ...grpc.CallOption) (*TeacherSignupResponse, error) {
 	out := new(TeacherSignupResponse)
 	err := c.cc.Invoke(ctx, "/users.UserService/TeacherSignup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetTeacherBySubject(ctx context.Context, in *GetTeacherBySubjectRequest, opts ...grpc.CallOption) (*Teachers, error) {
+	out := new(Teachers)
+	err := c.cc.Invoke(ctx, "/users.UserService/GetTeacherBySubject", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -246,9 +246,8 @@ func (c *userServiceClient) UserPasswordReset(ctx context.Context, in *UserPassw
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
-	GetStudents(context.Context, *GetStudentRequest) (*Students, error)
+	GetStudents(context.Context, *GetStudentsRequest) (*Students, error)
 	GetStudent(context.Context, *GetStudentRequest) (*Student, error)
-	AddStudent(context.Context, *StudentAddRequest) (*Student, error)
 	UpdateStudentStatus(context.Context, *UpdateStudentStatusRequest) (*UpdateStudentStatusResponse, error)
 	UpdateStudent(context.Context, *StudentUpdateRequest) (*Student, error)
 	DeleteStudent(context.Context, *DeleteStudentRequest) (*OperationStatus, error)
@@ -258,6 +257,7 @@ type UserServiceServer interface {
 	EmailConfirmation(context.Context, *EmailConfirmationRequest) (*OperationStatus, error)
 	InviteTeacher(context.Context, *InviteTeacherRequest) (*OperationStatus, error)
 	TeacherSignup(context.Context, *TeacherSignupRequest) (*TeacherSignupResponse, error)
+	GetTeacherBySubject(context.Context, *GetTeacherBySubjectRequest) (*Teachers, error)
 	GetUser(context.Context, *GetUserRequest) (*User, error)
 	GetUserByID(context.Context, *GetUserByIDRequest) (*User, error)
 	ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error)
@@ -274,14 +274,11 @@ type UserServiceServer interface {
 type UnimplementedUserServiceServer struct {
 }
 
-func (UnimplementedUserServiceServer) GetStudents(context.Context, *GetStudentRequest) (*Students, error) {
+func (UnimplementedUserServiceServer) GetStudents(context.Context, *GetStudentsRequest) (*Students, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetStudents not implemented")
 }
 func (UnimplementedUserServiceServer) GetStudent(context.Context, *GetStudentRequest) (*Student, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetStudent not implemented")
-}
-func (UnimplementedUserServiceServer) AddStudent(context.Context, *StudentAddRequest) (*Student, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddStudent not implemented")
 }
 func (UnimplementedUserServiceServer) UpdateStudentStatus(context.Context, *UpdateStudentStatusRequest) (*UpdateStudentStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateStudentStatus not implemented")
@@ -309,6 +306,9 @@ func (UnimplementedUserServiceServer) InviteTeacher(context.Context, *InviteTeac
 }
 func (UnimplementedUserServiceServer) TeacherSignup(context.Context, *TeacherSignupRequest) (*TeacherSignupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TeacherSignup not implemented")
+}
+func (UnimplementedUserServiceServer) GetTeacherBySubject(context.Context, *GetTeacherBySubjectRequest) (*Teachers, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTeacherBySubject not implemented")
 }
 func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
@@ -351,7 +351,7 @@ func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
 }
 
 func _UserService_GetStudents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetStudentRequest)
+	in := new(GetStudentsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -363,7 +363,7 @@ func _UserService_GetStudents_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: "/users.UserService/GetStudents",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetStudents(ctx, req.(*GetStudentRequest))
+		return srv.(UserServiceServer).GetStudents(ctx, req.(*GetStudentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -382,24 +382,6 @@ func _UserService_GetStudent_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).GetStudent(ctx, req.(*GetStudentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserService_AddStudent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StudentAddRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).AddStudent(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/users.UserService/AddStudent",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).AddStudent(ctx, req.(*StudentAddRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -562,6 +544,24 @@ func _UserService_TeacherSignup_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).TeacherSignup(ctx, req.(*TeacherSignupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_GetTeacherBySubject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTeacherBySubjectRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetTeacherBySubject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users.UserService/GetTeacherBySubject",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetTeacherBySubject(ctx, req.(*GetTeacherBySubjectRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -744,10 +744,6 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_GetStudent_Handler,
 		},
 		{
-			MethodName: "AddStudent",
-			Handler:    _UserService_AddStudent_Handler,
-		},
-		{
 			MethodName: "UpdateStudentStatus",
 			Handler:    _UserService_UpdateStudentStatus_Handler,
 		},
@@ -782,6 +778,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TeacherSignup",
 			Handler:    _UserService_TeacherSignup_Handler,
+		},
+		{
+			MethodName: "GetTeacherBySubject",
+			Handler:    _UserService_GetTeacherBySubject_Handler,
 		},
 		{
 			MethodName: "GetUser",

@@ -4,24 +4,37 @@ import (
 	"context"
 	"github.com/les-cours/user-api/api/users"
 	"github.com/les-cours/user-api/graph/models"
-	"github.com/les-cours/user-api/utils"
+	gprcToGraph "github.com/les-cours/user-api/grpcToGraph"
 )
 
-func (r *queryResolver) GetStudents(ctx context.Context) ([]*models.Student, error) {
+func (r *queryResolver) Students(ctx context.Context, in models.GetStudentsRequest) ([]*models.Student, error) {
 
 	var students []*models.Student
-	res, err := r.UserClient.GetStudent(ctx, &users.GetStudentRequest{
-		StudentID: "test",
+	res, err := r.UserClient.GetStudents(ctx, &users.GetStudentsRequest{
+		FilterType:  in.FilterType,
+		FilterValue: in.FilterValue,
 	})
 	if err != nil {
-		return nil, err
+		return nil, ErrApi(err)
+	}
+	for _, student := range res.Students {
+		students = append(students, gprcToGraph.Student(student))
 	}
 
-	students = append(students, &models.Student{
-		ID:   res.Id,
-		Name: res.Firstname,
-	})
 	return students, nil
+}
+
+func (r *queryResolver) Student(ctx context.Context, studentID string) (*models.Student, error) {
+
+	student, err := r.UserClient.GetStudent(ctx, &users.GetStudentRequest{
+		StudentID: studentID,
+	})
+	if err != nil {
+		return nil, ErrApi(err)
+	}
+
+	return gprcToGraph.Student(student), nil
+
 }
 
 func (r *mutationResolver) Signup(ctx context.Context, in models.StudentSignupRequest) (*models.SignupResponse, error) {
@@ -38,7 +51,7 @@ func (r *mutationResolver) Signup(ctx context.Context, in models.StudentSignupRe
 		CityID:    int32(in.CityID),
 	})
 	if err != nil {
-		return nil, utils.ErrApi(err)
+		return nil, ErrApi(err)
 	}
 	return &models.SignupResponse{
 		Succeeded: true,
@@ -65,7 +78,7 @@ func (r *mutationResolver) EmailConfirmation(ctx context.Context, in models.Emai
 		Code:      int64(in.Code),
 	})
 	if err != nil {
-		return nil, utils.ErrApi(err)
+		return nil, ErrApi(err)
 	}
 	return &models.OperationStatus{
 		Succeeded: res.Completed,

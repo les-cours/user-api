@@ -28,7 +28,7 @@ var (
 	goRoutineNum   = prometheus.NewGauge(prometheus.GaugeOpts{Name: "go_routines_num", Help: "the number of go routine "})
 )
 
-func monitoring_middleware(originalHandler http.Handler) http.HandlerFunc {
+func monitoringMiddleware(originalHandler http.Handler) http.HandlerFunc {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -98,7 +98,7 @@ func Start() {
 
 	http.Handle("/api", cors(getUser(srv)))
 	promHandler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
-	http.Handle("/metrics", cors(monitoring_middleware(promHandler)))
+	http.Handle("/metrics", cors(monitoringMiddleware(promHandler)))
 	http.Handle("/", playground.Handler("GraphQL playground", "/api"))
 
 	log.Printf("Starting http server on port " + env.Conf.HttpPort)
