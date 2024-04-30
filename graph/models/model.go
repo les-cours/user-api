@@ -22,6 +22,11 @@ type GetStudentsRequest struct {
 	FilterValue string `json:"filterValue"`
 }
 
+type InviteTeacherRequest struct {
+	Email    string   `json:"email"`
+	Subjects []string `json:"subjects"`
+}
+
 type Mutation struct {
 }
 
@@ -32,21 +37,9 @@ type OperationStatus struct {
 type Query struct {
 }
 
-type RefreshToken struct {
-	Token     string `json:"token"`
-	ExpiresAt int    `json:"expiresAt"`
-}
-
 type SignupResponse struct {
-	Succeeded    bool          `json:"succeeded"`
-	AccessToken  *AccessToken  `json:"accessToken"`
-	RefreshToken *RefreshToken `json:"refreshToken"`
-	SignupToken  *SignupToken  `json:"signupToken"`
-}
-
-type SignupToken struct {
-	Token     string `json:"token"`
-	ExpiresAt int    `json:"expiresAt"`
+	Succeeded   bool         `json:"succeeded"`
+	AccessToken *AccessToken `json:"accessToken"`
 }
 
 type Student struct {
@@ -77,5 +70,15 @@ type StudentSignupRequest struct {
 	Dob       string `json:"dob"`
 	Gender    string `json:"gender"`
 	GradID    string `json:"gradID"`
+	CityID    int    `json:"cityID"`
+}
+
+type TeacherSignupRequest struct {
+	TeacherID string `json:"teacherID"`
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
+	Password  string `json:"password"`
+	Dob       string `json:"dob"`
+	Gender    string `json:"gender"`
 	CityID    int    `json:"cityID"`
 }

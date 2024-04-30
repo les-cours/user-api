@@ -55,7 +55,9 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		EmailConfirmation func(childComplexity int, in models.EmailConfirmationRequest) int
+		InviteTeacher     func(childComplexity int, in models.InviteTeacherRequest) int
 		Signup            func(childComplexity int, in models.StudentSignupRequest) int
+		SignupTeacher     func(childComplexity int, in models.TeacherSignupRequest) int
 	}
 
 	OperationStatus struct {
@@ -67,21 +69,9 @@ type ComplexityRoot struct {
 		Students func(childComplexity int, in models.GetStudentsRequest) int
 	}
 
-	RefreshToken struct {
-		ExpiresAt func(childComplexity int) int
-		Token     func(childComplexity int) int
-	}
-
 	SignupResponse struct {
-		AccessToken  func(childComplexity int) int
-		RefreshToken func(childComplexity int) int
-		SignupToken  func(childComplexity int) int
-		Succeeded    func(childComplexity int) int
-	}
-
-	SignupToken struct {
-		ExpiresAt func(childComplexity int) int
-		Token     func(childComplexity int) int
+		AccessToken func(childComplexity int) int
+		Succeeded   func(childComplexity int) int
 	}
 
 	Student struct {
@@ -103,6 +93,8 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	Signup(ctx context.Context, in models.StudentSignupRequest) (*models.SignupResponse, error)
 	EmailConfirmation(ctx context.Context, in models.EmailConfirmationRequest) (*models.OperationStatus, error)
+	SignupTeacher(ctx context.Context, in models.TeacherSignupRequest) (*models.SignupResponse, error)
+	InviteTeacher(ctx context.Context, in models.InviteTeacherRequest) (*models.OperationStatus, error)
 }
 type QueryResolver interface {
 	Students(ctx context.Context, in models.GetStudentsRequest) ([]*models.Student, error)
@@ -161,6 +153,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.EmailConfirmation(childComplexity, args["in"].(models.EmailConfirmationRequest)), true
 
+	case "Mutation.inviteTeacher":
+		if e.complexity.Mutation.InviteTeacher == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_inviteTeacher_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.InviteTeacher(childComplexity, args["in"].(models.InviteTeacherRequest)), true
+
 	case "Mutation.signup":
 		if e.complexity.Mutation.Signup == nil {
 			break
@@ -172,6 +176,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.Signup(childComplexity, args["in"].(models.StudentSignupRequest)), true
+
+	case "Mutation.signupTeacher":
+		if e.complexity.Mutation.SignupTeacher == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_signupTeacher_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SignupTeacher(childComplexity, args["in"].(models.TeacherSignupRequest)), true
 
 	case "OperationStatus.succeeded":
 		if e.complexity.OperationStatus.Succeeded == nil {
@@ -204,20 +220,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Students(childComplexity, args["in"].(models.GetStudentsRequest)), true
 
-	case "RefreshToken.expiresAt":
-		if e.complexity.RefreshToken.ExpiresAt == nil {
-			break
-		}
-
-		return e.complexity.RefreshToken.ExpiresAt(childComplexity), true
-
-	case "RefreshToken.token":
-		if e.complexity.RefreshToken.Token == nil {
-			break
-		}
-
-		return e.complexity.RefreshToken.Token(childComplexity), true
-
 	case "SignupResponse.accessToken":
 		if e.complexity.SignupResponse.AccessToken == nil {
 			break
@@ -225,40 +227,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SignupResponse.AccessToken(childComplexity), true
 
-	case "SignupResponse.refreshToken":
-		if e.complexity.SignupResponse.RefreshToken == nil {
-			break
-		}
-
-		return e.complexity.SignupResponse.RefreshToken(childComplexity), true
-
-	case "SignupResponse.signupToken":
-		if e.complexity.SignupResponse.SignupToken == nil {
-			break
-		}
-
-		return e.complexity.SignupResponse.SignupToken(childComplexity), true
-
 	case "SignupResponse.succeeded":
 		if e.complexity.SignupResponse.Succeeded == nil {
 			break
 		}
 
 		return e.complexity.SignupResponse.Succeeded(childComplexity), true
-
-	case "SignupToken.expiresAt":
-		if e.complexity.SignupToken.ExpiresAt == nil {
-			break
-		}
-
-		return e.complexity.SignupToken.ExpiresAt(childComplexity), true
-
-	case "SignupToken.token":
-		if e.complexity.SignupToken.Token == nil {
-			break
-		}
-
-		return e.complexity.SignupToken.Token(childComplexity), true
 
 	case "Student.avatar":
 		if e.complexity.Student.Avatar == nil {
@@ -355,8 +329,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputEmailConfirmationRequest,
 		ec.unmarshalInputGetStudentRequest,
 		ec.unmarshalInputGetStudentsRequest,
+		ec.unmarshalInputInviteTeacherRequest,
 		ec.unmarshalInputStudentInput,
 		ec.unmarshalInputStudentSignupRequest,
+		ec.unmarshalInputTeacherSignupRequest,
 	)
 	first := true
 
@@ -482,6 +458,36 @@ func (ec *executionContext) field_Mutation_emailConfirmation_args(ctx context.Co
 	if tmp, ok := rawArgs["in"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
 		arg0, err = ec.unmarshalNEmailConfirmationRequest2githubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐEmailConfirmationRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["in"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_inviteTeacher_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.InviteTeacherRequest
+	if tmp, ok := rawArgs["in"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
+		arg0, err = ec.unmarshalNInviteTeacherRequest2githubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐInviteTeacherRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["in"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_signupTeacher_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.TeacherSignupRequest
+	if tmp, ok := rawArgs["in"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("in"))
+		arg0, err = ec.unmarshalNTeacherSignupRequest2githubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐTeacherSignupRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -760,10 +766,6 @@ func (ec *executionContext) fieldContext_Mutation_signup(ctx context.Context, fi
 				return ec.fieldContext_SignupResponse_succeeded(ctx, field)
 			case "accessToken":
 				return ec.fieldContext_SignupResponse_accessToken(ctx, field)
-			case "refreshToken":
-				return ec.fieldContext_SignupResponse_refreshToken(ctx, field)
-			case "signupToken":
-				return ec.fieldContext_SignupResponse_signupToken(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SignupResponse", field.Name)
 		},
@@ -835,6 +837,123 @@ func (ec *executionContext) fieldContext_Mutation_emailConfirmation(ctx context.
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_emailConfirmation_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_signupTeacher(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_signupTeacher(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SignupTeacher(rctx, fc.Args["in"].(models.TeacherSignupRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.SignupResponse)
+	fc.Result = res
+	return ec.marshalOSignupResponse2ᚖgithubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐSignupResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_signupTeacher(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "succeeded":
+				return ec.fieldContext_SignupResponse_succeeded(ctx, field)
+			case "accessToken":
+				return ec.fieldContext_SignupResponse_accessToken(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SignupResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_signupTeacher_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_inviteTeacher(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_inviteTeacher(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().InviteTeacher(rctx, fc.Args["in"].(models.InviteTeacherRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.OperationStatus)
+	fc.Result = res
+	return ec.marshalNOperationStatus2ᚖgithubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐOperationStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_inviteTeacher(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "succeeded":
+				return ec.fieldContext_OperationStatus_succeeded(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type OperationStatus", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_inviteTeacher_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1173,94 +1292,6 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _RefreshToken_token(ctx context.Context, field graphql.CollectedField, obj *models.RefreshToken) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RefreshToken_token(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Token, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_RefreshToken_token(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RefreshToken",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _RefreshToken_expiresAt(ctx context.Context, field graphql.CollectedField, obj *models.RefreshToken) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RefreshToken_expiresAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ExpiresAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_RefreshToken_expiresAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RefreshToken",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _SignupResponse_succeeded(ctx context.Context, field graphql.CollectedField, obj *models.SignupResponse) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SignupResponse_succeeded(ctx, field)
 	if err != nil {
@@ -1352,194 +1383,6 @@ func (ec *executionContext) fieldContext_SignupResponse_accessToken(ctx context.
 				return ec.fieldContext_AccessToken_expiresAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AccessToken", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SignupResponse_refreshToken(ctx context.Context, field graphql.CollectedField, obj *models.SignupResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SignupResponse_refreshToken(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.RefreshToken, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*models.RefreshToken)
-	fc.Result = res
-	return ec.marshalNRefreshToken2ᚖgithubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐRefreshToken(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SignupResponse_refreshToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SignupResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "token":
-				return ec.fieldContext_RefreshToken_token(ctx, field)
-			case "expiresAt":
-				return ec.fieldContext_RefreshToken_expiresAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type RefreshToken", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SignupResponse_signupToken(ctx context.Context, field graphql.CollectedField, obj *models.SignupResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SignupResponse_signupToken(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SignupToken, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*models.SignupToken)
-	fc.Result = res
-	return ec.marshalNSignupToken2ᚖgithubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐSignupToken(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SignupResponse_signupToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SignupResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "token":
-				return ec.fieldContext_SignupToken_token(ctx, field)
-			case "expiresAt":
-				return ec.fieldContext_SignupToken_expiresAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type SignupToken", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SignupToken_token(ctx context.Context, field graphql.CollectedField, obj *models.SignupToken) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SignupToken_token(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Token, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SignupToken_token(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SignupToken",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SignupToken_expiresAt(ctx context.Context, field graphql.CollectedField, obj *models.SignupToken) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SignupToken_expiresAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ExpiresAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SignupToken_expiresAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SignupToken",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3938,6 +3781,40 @@ func (ec *executionContext) unmarshalInputGetStudentsRequest(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputInviteTeacherRequest(ctx context.Context, obj interface{}) (models.InviteTeacherRequest, error) {
+	var it models.InviteTeacherRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email", "subjects"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "subjects":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("subjects"))
+			data, err := ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Subjects = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputStudentInput(ctx context.Context, obj interface{}) (models.StudentInput, error) {
 	var it models.StudentInput
 	asMap := map[string]interface{}{}
@@ -4048,6 +3925,75 @@ func (ec *executionContext) unmarshalInputStudentSignupRequest(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTeacherSignupRequest(ctx context.Context, obj interface{}) (models.TeacherSignupRequest, error) {
+	var it models.TeacherSignupRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"teacherID", "firstname", "lastname", "password", "dob", "gender", "cityID"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "teacherID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teacherID"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeacherID = data
+		case "firstname":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstname"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Firstname = data
+		case "lastname":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastname"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Lastname = data
+		case "password":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
+		case "dob":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dob"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Dob = data
+		case "gender":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("gender"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Gender = data
+		case "cityID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cityID"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CityID = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4131,6 +4077,17 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "emailConfirmation":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_emailConfirmation(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "signupTeacher":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_signupTeacher(ctx, field)
+			})
+		case "inviteTeacher":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_inviteTeacher(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -4288,50 +4245,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
-var refreshTokenImplementors = []string{"RefreshToken"}
-
-func (ec *executionContext) _RefreshToken(ctx context.Context, sel ast.SelectionSet, obj *models.RefreshToken) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, refreshTokenImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("RefreshToken")
-		case "token":
-			out.Values[i] = ec._RefreshToken_token(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "expiresAt":
-			out.Values[i] = ec._RefreshToken_expiresAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var signupResponseImplementors = []string{"SignupResponse"}
 
 func (ec *executionContext) _SignupResponse(ctx context.Context, sel ast.SelectionSet, obj *models.SignupResponse) graphql.Marshaler {
@@ -4350,60 +4263,6 @@ func (ec *executionContext) _SignupResponse(ctx context.Context, sel ast.Selecti
 			}
 		case "accessToken":
 			out.Values[i] = ec._SignupResponse_accessToken(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "refreshToken":
-			out.Values[i] = ec._SignupResponse_refreshToken(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "signupToken":
-			out.Values[i] = ec._SignupResponse_signupToken(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var signupTokenImplementors = []string{"SignupToken"}
-
-func (ec *executionContext) _SignupToken(ctx context.Context, sel ast.SelectionSet, obj *models.SignupToken) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, signupTokenImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("SignupToken")
-		case "token":
-			out.Values[i] = ec._SignupToken_token(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "expiresAt":
-			out.Values[i] = ec._SignupToken_expiresAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4897,6 +4756,11 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
+func (ec *executionContext) unmarshalNInviteTeacherRequest2githubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐInviteTeacherRequest(ctx context.Context, v interface{}) (models.InviteTeacherRequest, error) {
+	res, err := ec.unmarshalInputInviteTeacherRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNOperationStatus2githubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐOperationStatus(ctx context.Context, sel ast.SelectionSet, v models.OperationStatus) graphql.Marshaler {
 	return ec._OperationStatus(ctx, sel, &v)
 }
@@ -4909,26 +4773,6 @@ func (ec *executionContext) marshalNOperationStatus2ᚖgithubᚗcomᚋlesᚑcour
 		return graphql.Null
 	}
 	return ec._OperationStatus(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNRefreshToken2ᚖgithubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐRefreshToken(ctx context.Context, sel ast.SelectionSet, v *models.RefreshToken) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._RefreshToken(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNSignupToken2ᚖgithubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐSignupToken(ctx context.Context, sel ast.SelectionSet, v *models.SignupToken) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._SignupToken(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -4944,6 +4788,38 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNStudent2ᚕᚖgithubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐStudentᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Student) graphql.Marshaler {
@@ -5002,6 +4878,11 @@ func (ec *executionContext) marshalNStudent2ᚖgithubᚗcomᚋlesᚑcoursᚋuser
 
 func (ec *executionContext) unmarshalNStudentSignupRequest2githubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐStudentSignupRequest(ctx context.Context, v interface{}) (models.StudentSignupRequest, error) {
 	res, err := ec.unmarshalInputStudentSignupRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTeacherSignupRequest2githubᚗcomᚋlesᚑcoursᚋuserᚑapiᚋgraphᚋmodelsᚐTeacherSignupRequest(ctx context.Context, v interface{}) (models.TeacherSignupRequest, error) {
+	res, err := ec.unmarshalInputTeacherSignupRequest(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

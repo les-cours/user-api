@@ -9,6 +9,15 @@ import (
 
 func (r *queryResolver) Students(ctx context.Context, in models.GetStudentsRequest) ([]*models.Student, error) {
 
+	//var user *types.UserToken
+	//if user, _ = ctx.Value("user").(*types.UserToken); user == nil {
+	//	return nil, ErrPermissionDenied
+	//}
+	//
+	//if !user.Read.USER {
+	//	return nil, ErrPermissionDenied
+	//}
+
 	var students []*models.Student
 	res, err := r.UserClient.GetStudents(ctx, &users.GetStudentsRequest{
 		FilterType:  in.FilterType,
@@ -59,14 +68,6 @@ func (r *mutationResolver) Signup(ctx context.Context, in models.StudentSignupRe
 			Token:     res.AccessToken.Token,
 			ExpiresAt: int(res.AccessToken.ExpiresAt),
 			TokenType: res.AccessToken.TokenType,
-		},
-		RefreshToken: &models.RefreshToken{
-			Token:     res.RefreshToken.Token,
-			ExpiresAt: int(res.RefreshToken.ExpiresAt),
-		},
-		SignupToken: &models.SignupToken{
-			Token:     res.SignupToken.Token,
-			ExpiresAt: int(res.SignupToken.ExpiresAt),
 		},
 	}, nil
 }

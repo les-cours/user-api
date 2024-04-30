@@ -6,6 +6,8 @@ schema {
 type Mutation {
     signup(in: StudentSignupRequest!): SignupResponse
     emailConfirmation(in: EmailConfirmationRequest!): OperationStatus!
+    signupTeacher(in: TeacherSignupRequest!): SignupResponse
+    inviteTeacher(in: InviteTeacherRequest!): OperationStatus!
 }
 
 type Query {

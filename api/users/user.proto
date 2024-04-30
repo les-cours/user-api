@@ -189,6 +189,9 @@ message TeacherSignupRequest {
   string firstname = 2;
   string lastname = 3;
   string password = 4;
+  string dob = 5;
+  string gender = 6;
+  int32 cityID =7;
 }
 message TeacherSignupResponse{
   string token = 1;

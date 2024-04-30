@@ -9,26 +9,28 @@ input StudentSignupRequest {
     cityID: Int!
 }
 
+input InviteTeacherRequest {
+    email: String!
+    subjects: [String!]!
+}
+input TeacherSignupRequest {
+    teacherID:String!
+    firstname: String!
+    lastname: String!
+    password: String!
+    dob: String!
+    gender: String!
+    cityID: Int!
+}
+
 type SignupResponse {
     succeeded: Boolean!
     accessToken: AccessToken!
-    refreshToken: RefreshToken!
-    signupToken: SignupToken!
 }
 
 type AccessToken {
     token: String!
     tokenType: String!
-    expiresAt: Int!
-}
-
-type RefreshToken {
-    token: String!
-    expiresAt: Int!
-}
-
-type SignupToken {
-    token: String!
     expiresAt: Int!
 }
 
