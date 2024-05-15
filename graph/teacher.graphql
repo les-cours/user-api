@@ -1,0 +1,40 @@
+
+type Teacher {
+    teacherID: String!
+    cityID: Int!
+    firstname: String!
+    lastname: String!
+    gender: String!
+    dateOfBirth: String!
+    description: String!
+    avatar: String!
+    email: String!
+}
+
+input UpdateTeacherRequest {
+    teacherID: String!
+    cityID: Int!
+    firstname: String!
+    lastname: String!
+    gender: String!
+    dateOfBirth: String!
+    description: String!
+    avatar: String!
+}
+
+input TeacherSignupRequest {
+    teacherID: String!
+    firstname: String!
+    lastname: String!
+    password: String!
+    dob: String!
+    gender: String!
+    cityID: Int!
+    description: String!
+}
+
+
+input InviteTeacherRequest {
+    email: String!
+    subjects: [String!]!
+}

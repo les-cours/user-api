@@ -43,3 +43,37 @@ func (r *mutationResolver) SignupTeacher(ctx context.Context, in models.TeacherS
 		},
 	}, nil
 }
+
+func (r *mutationResolver) UpdateTeacher(ctx context.Context, in models.UpdateTeacherRequest) (*models.Teacher, error) {
+
+	//user, _ := ctx.Value("user").(*types.UserToken)
+	//if !user.Update.USER {
+	//	return nil, ErrPermissionDenied
+	//}
+
+	_, err := r.UserClient.UpdateTeacher(ctx, &users.UpdateTeacherRequest{
+		TeacherID:   in.TeacherID,
+		CityID:      int32(in.CityID),
+		Firstname:   in.Firstname,
+		Lastname:    in.Lastname,
+		Gender:      in.Gender,
+		DateOfBirth: in.DateOfBirth,
+		Description: in.Description,
+		Avatar:      in.Avatar,
+	})
+	if err != nil {
+		return nil, ErrApi(err)
+	}
+
+	return &models.Teacher{
+		TeacherID:   in.TeacherID,
+		CityID:      in.CityID,
+		Firstname:   in.Firstname,
+		Lastname:    in.Lastname,
+		Gender:      in.Gender,
+		DateOfBirth: in.DateOfBirth,
+		Description: in.Description,
+		Avatar:      in.Avatar,
+	}, nil
+
+}

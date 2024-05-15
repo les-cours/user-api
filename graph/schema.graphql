@@ -8,6 +8,7 @@ type Mutation {
     emailConfirmation(in: EmailConfirmationRequest!): OperationStatus!
     signupTeacher(in: TeacherSignupRequest!): SignupResponse
     inviteTeacher(in: InviteTeacherRequest!): OperationStatus!
+    updateTeacher(in: UpdateTeacherRequest!): Teacher!
 }
 
 type Query {
@@ -21,3 +22,18 @@ type OperationStatus {
 }
 
 
+type SignupResponse {
+    succeeded: Boolean!
+    accessToken: AccessToken!
+}
+
+type AccessToken {
+    token: String!
+    tokenType: String!
+    expiresAt: Int!
+}
+
+input EmailConfirmationRequest {
+    accountID: String!
+    code: Int!
+}

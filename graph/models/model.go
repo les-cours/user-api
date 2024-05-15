@@ -73,12 +73,36 @@ type StudentSignupRequest struct {
 	CityID    int    `json:"cityID"`
 }
 
+type Teacher struct {
+	TeacherID   string `json:"teacherID"`
+	CityID      int    `json:"cityID"`
+	Firstname   string `json:"firstname"`
+	Lastname    string `json:"lastname"`
+	Gender      string `json:"gender"`
+	DateOfBirth string `json:"dateOfBirth"`
+	Description string `json:"description"`
+	Avatar      string `json:"avatar"`
+	Email       string `json:"email"`
+}
+
 type TeacherSignupRequest struct {
-	TeacherID string `json:"teacherID"`
-	Firstname string `json:"firstname"`
-	Lastname  string `json:"lastname"`
-	Password  string `json:"password"`
-	Dob       string `json:"dob"`
-	Gender    string `json:"gender"`
-	CityID    int    `json:"cityID"`
+	TeacherID   string `json:"teacherID"`
+	Firstname   string `json:"firstname"`
+	Lastname    string `json:"lastname"`
+	Password    string `json:"password"`
+	Dob         string `json:"dob"`
+	Gender      string `json:"gender"`
+	CityID      int    `json:"cityID"`
+	Description string `json:"description"`
+}
+
+type UpdateTeacherRequest struct {
+	TeacherID   string `json:"teacherID"`
+	CityID      int    `json:"cityID"`
+	Firstname   string `json:"firstname"`
+	Lastname    string `json:"lastname"`
+	Gender      string `json:"gender"`
+	DateOfBirth string `json:"dateOfBirth"`
+	Description string `json:"description"`
+	Avatar      string `json:"avatar"`
 }
