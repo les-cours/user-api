@@ -5,6 +5,7 @@ import (
 	"github.com/les-cours/user-api/api/users"
 	"github.com/les-cours/user-api/graph/models"
 	gprcToGraph "github.com/les-cours/user-api/grpcToGraph"
+	"log"
 )
 
 func (r *queryResolver) Students(ctx context.Context, in models.GetStudentsRequest) ([]*models.Student, error) {
@@ -60,6 +61,7 @@ func (r *mutationResolver) Signup(ctx context.Context, in models.StudentSignupRe
 		CityID:    int32(in.CityID),
 	})
 	if err != nil {
+		log.Println("students.go 64", err.Error())
 		return nil, ErrApi(err)
 	}
 	return &models.SignupResponse{
