@@ -49,7 +49,6 @@ func (r *queryResolver) Student(ctx context.Context, studentID string) (*models.
 
 func (r *mutationResolver) Signup(ctx context.Context, in models.StudentSignupRequest) (*models.SignupResponse, error) {
 
-	//ctx.Value()
 	res, err := r.UserClient.StudentSignup(ctx, &users.StudentSignupRequest{
 		Firstname: in.Firstname,
 		Lastname:  in.Lastname,
