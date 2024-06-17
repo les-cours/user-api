@@ -9,6 +9,8 @@ type Teacher {
     description: String!
     avatar: String!
     email: String!
+    onlineStatus :Boolean!
+    username: String!
 }
 
 input UpdateTeacherRequest {

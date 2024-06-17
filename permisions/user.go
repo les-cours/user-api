@@ -5,15 +5,11 @@ import (
 	"github.com/les-cours/user-api/types"
 )
 
-func Student(ctx context.Context) (*types.UserToken, error) {
+func User(ctx context.Context) (*types.UserToken, error) {
 
 	user, ok := ctx.Value("user").(*types.UserToken)
 	if !ok || *user == (types.UserToken{}) {
 		return nil, ErrAuth
-	}
-
-	if user.UserType != "student" {
-		return nil, ErrPermissionDenied
 	}
 
 	return user, nil

@@ -5,14 +5,14 @@ import (
 	"github.com/les-cours/user-api/types"
 )
 
-func Student(ctx context.Context) (*types.UserToken, error) {
+func Admin(ctx context.Context) (*types.UserToken, error) {
 
 	user, ok := ctx.Value("user").(*types.UserToken)
 	if !ok || *user == (types.UserToken{}) {
 		return nil, ErrAuth
 	}
 
-	if user.UserType != "student" {
+	if user.UserType != "admin" {
 		return nil, ErrPermissionDenied
 	}
 

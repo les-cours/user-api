@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/les-cours/user-api/api/users"
 	"github.com/les-cours/user-api/graph/models"
+	gprcToGraph "github.com/les-cours/user-api/grpcToGraph"
+	"github.com/les-cours/user-api/permisions"
 )
 
 func (r *mutationResolver) InviteTeacher(ctx context.Context, in models.InviteTeacherRequest) (*models.OperationStatus, error) {
@@ -75,5 +77,36 @@ func (r *mutationResolver) UpdateTeacher(ctx context.Context, in models.UpdateTe
 		Description: in.Description,
 		Avatar:      in.Avatar,
 	}, nil
+
+}
+
+func (r *queryResolver) GetTeachers(ctx context.Context) ([]*models.Teacher, error) {
+
+	_, err := permisions.Admin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res, err := r.UserClient.GetTeachers(ctx, &users.Empty{})
+	if err != nil {
+		return nil, ErrApi(err)
+	}
+	return gprcToGraph.Teachers(res), nil
+
+}
+
+func (r *queryResolver) GetTeacher(ctx context.Context, teacherID string) (*models.Teacher, error) {
+
+	_, permissionErr := permisions.Admin(ctx)
+	if permissionErr != nil {
+		return nil, permissionErr
+	}
+	res, err := r.UserClient.GetTeacher(ctx, &users.IDRequest{
+		Id: teacherID,
+	})
+	if err != nil {
+		return nil, ErrApi(err)
+	}
+
+	return gprcToGraph.Teacher(res), nil
 
 }

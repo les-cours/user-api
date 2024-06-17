@@ -74,15 +74,17 @@ type StudentSignupRequest struct {
 }
 
 type Teacher struct {
-	TeacherID   string `json:"teacherID"`
-	CityID      int    `json:"cityID"`
-	Firstname   string `json:"firstname"`
-	Lastname    string `json:"lastname"`
-	Gender      string `json:"gender"`
-	DateOfBirth string `json:"dateOfBirth"`
-	Description string `json:"description"`
-	Avatar      string `json:"avatar"`
-	Email       string `json:"email"`
+	TeacherID    string `json:"teacherID"`
+	CityID       int    `json:"cityID"`
+	Firstname    string `json:"firstname"`
+	Lastname     string `json:"lastname"`
+	Gender       string `json:"gender"`
+	DateOfBirth  string `json:"dateOfBirth"`
+	Description  string `json:"description"`
+	Avatar       string `json:"avatar"`
+	Email        string `json:"email"`
+	OnlineStatus bool   `json:"onlineStatus"`
+	Username     string `json:"username"`
 }
 
 type TeacherSignupRequest struct {

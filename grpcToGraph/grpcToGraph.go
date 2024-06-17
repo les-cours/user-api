@@ -22,3 +22,27 @@ func Student(student *users.Student) *models.Student {
 	}
 
 }
+
+func Teachers(teachersApi *users.Teachers) []*models.Teacher {
+	var teachers = make([]*models.Teacher, 0)
+	for _, teacher := range teachersApi.Teachers {
+		teachers = append(teachers, Teacher(teacher))
+	}
+	return nil
+}
+
+func Teacher(teacher *users.Teacher) *models.Teacher {
+	return &models.Teacher{
+		TeacherID:    teacher.TeacherID,
+		CityID:       int(teacher.CityID),
+		Firstname:    teacher.Firstname,
+		Lastname:     teacher.Lastname,
+		Gender:       teacher.Gender,
+		DateOfBirth:  teacher.DateOfBirth,
+		Description:  teacher.Description,
+		Avatar:       teacher.Avatar,
+		Email:        teacher.Email,
+		OnlineStatus: teacher.OnlineStatus,
+		Username:     teacher.Username,
+	}
+}
