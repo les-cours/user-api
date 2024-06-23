@@ -5,7 +5,7 @@ type Student {
     lastname: String!
     gender: String!
     dateOfBirth: String!
-    status: Boolean!
+    status: String!
     avatar: String
     notificationStatus: Boolean!
     onlineStatus: Boolean!

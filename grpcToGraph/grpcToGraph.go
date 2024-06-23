@@ -7,7 +7,7 @@ import (
 
 func Student(student *users.Student) *models.Student {
 	return &models.Student{
-		StudentID:          student.StudentId,
+		StudentID:          student.StudentID,
 		Username:           student.Username,
 		Firstname:          student.Firstname,
 		Lastname:           student.Lastname,
@@ -17,8 +17,8 @@ func Student(student *users.Student) *models.Student {
 		Avatar:             &student.Avatar,
 		NotificationStatus: student.NotificationStatus,
 		OnlineStatus:       student.OnlineStatus,
-		DefaultAvatar:      student.StudentId,
-		CityID:             student.StudentId,
+		DefaultAvatar:      student.Avatar,
+		CityID:             student.CityID,
 	}
 
 }
@@ -28,7 +28,7 @@ func Teachers(teachersApi *users.Teachers) []*models.Teacher {
 	for _, teacher := range teachersApi.Teachers {
 		teachers = append(teachers, Teacher(teacher))
 	}
-	return nil
+	return teachers
 }
 
 func Teacher(teacher *users.Teacher) *models.Teacher {
@@ -44,5 +44,20 @@ func Teacher(teacher *users.Teacher) *models.Teacher {
 		Email:        teacher.Email,
 		OnlineStatus: teacher.OnlineStatus,
 		Username:     teacher.Username,
+	}
+}
+
+func Notifications(notificationApi *users.Notifications) []*models.Notification {
+	var notifications = make([]*models.Notification, 0)
+	for _, notification := range notificationApi.Notifications {
+		notifications = append(notifications, Notification(notification))
+	}
+	return notifications
+}
+func Notification(notification *users.Notification) *models.Notification {
+	return &models.Notification{
+		ID:      notification.Id,
+		Title:   notification.Title,
+		Content: notification.Content,
 	}
 }

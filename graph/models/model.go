@@ -30,6 +30,12 @@ type InviteTeacherRequest struct {
 type Mutation struct {
 }
 
+type Notification struct {
+	ID      string `json:"id"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+
 type OperationStatus struct {
 	Succeeded bool `json:"succeeded"`
 }
@@ -49,7 +55,7 @@ type Student struct {
 	Lastname           string  `json:"lastname"`
 	Gender             string  `json:"gender"`
 	DateOfBirth        string  `json:"dateOfBirth"`
-	Status             bool    `json:"status"`
+	Status             string  `json:"status"`
 	Avatar             *string `json:"avatar,omitempty"`
 	NotificationStatus bool    `json:"notificationStatus"`
 	OnlineStatus       bool    `json:"onlineStatus"`

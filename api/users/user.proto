@@ -2,7 +2,9 @@ syntax = "proto3";
 option go_package="github.com/les-cours/user-service/api/users";
 package users;
 
+
 message Empty {}
+
 message IDRequest {
   string id = 1;
 }
@@ -40,18 +42,17 @@ message MultiStudentsDeleteRequest{
   repeated string studentIDs = 1;
 }
 message Student {
-  string student_id = 2;
+  string studentID = 2;
   string username = 3;
   string firstname = 5;
   string lastname = 6;
   string gender = 7;
   string dateOfBirth = 8;
-  bool status = 9;
+  string status = 9;
   string avatar = 10;
   bool notificationStatus = 11;
   bool onlineStatus = 12;
-  string defaultAvatar = 13;
-  string city_id = 14;
+  string cityID = 13;
 }
 message UpdateStudentStatusResponse {
   string studentID = 1;
@@ -83,8 +84,6 @@ message StudentSignupRequest {
 message StudentSignupResponse {
   bool succeeded = 1;
   AccessToken accessToken = 2;
-  RefreshToken refreshToken = 3;
-  SignupToken signupToken = 4;
 }
 
 message EmailConfirmationRequest {
@@ -95,6 +94,7 @@ message EmailConfirmationRequest {
 
 message GetUserByIDRequest {
   string accountID = 1;
+  string userRole = 2;
 }
 message User {
   string id = 1;
@@ -103,17 +103,19 @@ message User {
   string firstName = 4;
   string lastName = 5;
   string email = 6;
-  Plan plan = 8;
-  repeated string allowedIPS = 9;
-  string department = 10;
   string avatar = 11;
-  Permissions Permissions = 12;
   string userType = 13;
+  Permissions CREATE = 14;
+  Permissions READ = 15;
+  Permissions UPDATE = 16;
+  Permissions DELETE = 17;
 }
+
 message GetUserRequest {
   string username = 1;
   string password = 2;
   bool isTeacher = 3;
+  bool isAdmin = 4;
 }
 message ResetPasswordRequest {
   string email = 1;
@@ -155,14 +157,8 @@ message AccessToken {
   int64 expiresAt = 2;
   string tokenType = 3;
 }
-message RefreshToken {
-  string token = 1;
-  int64 expiresAt = 2;
-}
-message SignupToken {
-  string token = 1;
-  int64 expiresAt = 2;
-}
+
+
 message IsSignupLinkValidRequest {
   string token = 1;
 }
@@ -188,9 +184,7 @@ message Teacher {
   string status = 10;
   bool onlineStatus = 11;
   string username = 12;
-
 }
-
 message  Teachers {
   repeated Teacher teachers =1;
 }
@@ -203,6 +197,7 @@ message TeacherSignupRequest {
   string dob = 5;
   string gender = 6;
   int32 cityID =7;
+  string description = 8;
 }
 message UpdateTeacherRequest {
   string teacherID = 1;
@@ -214,6 +209,7 @@ message UpdateTeacherRequest {
   string description = 7;
   string avatar = 8;
 }
+
 
 message TeacherSignupResponse{
   string token = 1;
@@ -246,14 +242,13 @@ message ProfileNotification {
   string id = 1;
   string content = 3;
 }
+message Notifications{
+  repeated  Notification notifications = 1;
+}
 message Notification  {
   string id = 1 ;
   string title = 2;
-  int64 timestamp = 3;
   string content = 4;
-  string category = 6;
-  string type = 7;
-
 }
 message GetNotificationsRequest {
   string AccountID = 1;
@@ -263,21 +258,12 @@ message GetNotificationsRequest {
 message GetNotificationsResponse {
   repeated Notification notifications = 1;
 }
-message Plan {
-  string planID = 1;
-  string name = 2;
-  int64 periodEndAt = 3;
-  bool active = 4;
-  string require = 5;
+message  Permissions {
+  bool orgs = 1;
+  bool learning = 2;
+  bool users = 3;
+  bool payment = 4;
 }
-message Permissions {
-  int32 id = 1;
-  bool writeComment =2;
-  bool live =3;
-  bool settings =4;
-  string accountID = 5;
-}
-
 service UserService {
   rpc GetStudents(GetStudentsRequest) returns (Students) {}
   rpc GetStudent(GetStudentRequest) returns (Student) {}
@@ -297,9 +283,6 @@ service UserService {
   rpc UpdateTeacher(UpdateTeacherRequest) returns (Teacher) {}
   rpc GetTeacher(IDRequest) returns (Teacher) {}
   rpc GetTeachers(Empty) returns (Teachers) {}
-
-
-
   /*
        USER
    */
@@ -313,5 +296,8 @@ service UserService {
   rpc DoesUserNameExist(DoesUserNameExistRequest) returns (DoesUserNameExistResponse) {}
   rpc IsSignupLinkValid(IsSignupLinkValidRequest) returns (IsSignupLinkValidResponse) {}
   rpc UserPasswordReset(UserPasswordResetRequest)returns (OperationStatus){}
+
+
+  rpc InitStudent(IDRequest) returns(Notifications){}
 
 }

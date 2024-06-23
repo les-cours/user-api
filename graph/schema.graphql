@@ -9,6 +9,8 @@ type Mutation {
     signupTeacher(in: TeacherSignupRequest!): SignupResponse
     inviteTeacher(in: InviteTeacherRequest!): OperationStatus!
     updateTeacher(in: UpdateTeacherRequest!): Teacher!
+
+    init:[Notification!]!
 }
 
 type Query {
@@ -23,6 +25,11 @@ type OperationStatus {
     succeeded: Boolean!
 }
 
+type Notification {
+    id: String!
+    title : String!
+    content: String!
+}
 
 type SignupResponse {
     succeeded: Boolean!

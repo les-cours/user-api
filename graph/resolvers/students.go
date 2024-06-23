@@ -5,8 +5,24 @@ import (
 	"github.com/les-cours/user-api/api/users"
 	"github.com/les-cours/user-api/graph/models"
 	gprcToGraph "github.com/les-cours/user-api/grpcToGraph"
+	"github.com/les-cours/user-api/permisions"
 	"log"
 )
+
+func (r *mutationResolver) Init(ctx context.Context) ([]*models.Notification, error) {
+
+	student, err := permisions.Student(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res, err := r.UserClient.InitStudent(ctx, &users.IDRequest{
+		Id: student.ID,
+	})
+	if err != nil {
+		return nil, ErrApi(err)
+	}
+	return gprcToGraph.Notifications(res), nil
+}
 
 func (r *queryResolver) Students(ctx context.Context, in models.GetStudentsRequest) ([]*models.Student, error) {
 
